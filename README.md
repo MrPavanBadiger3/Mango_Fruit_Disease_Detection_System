@@ -1,7 +1,18 @@
 # 🥭 Mango Disease Detection System
-**KLE Technological University, Belagavi**
-**Guide:** Dr. Prema Akkasaligar
-**Team:** Pavan Badiger
+**KLE Technological University, Belagavi**  
+ 
+**Developed By:** Pavan Badiger
+
+---
+
+## ⬇️ Downloads (Model & Dataset)
+
+> ⚠️ Due to GitHub's 100MB file size limit, the trained model and dataset are hosted on Google Drive.
+
+| File | Size | Download |
+|---|---|---|
+| `mango_disease_model.h5` (Pre-trained Model) | ~171 MB | [Download from Google Drive](https://drive.google.com/file/d/1LZ1TG34-oQ8b1dQMtcYJ9FKDfGy61mjz/view?usp=sharing) |
+| `dataset.zip` (Mango Leaf Disease Dataset) | Large | [Download from Google Drive](https://drive.google.com/file/d/1Ycuj4rVSwbzdeObMrqfEq2wy5foLXLu0/view?usp=sharing) |
 
 ---
 
@@ -25,7 +36,7 @@ mango-disease-detection/
 │   ├── Powdery Mildew/
 │   └── Sooty Mould/
 │
-├── mango_disease_model.h5  ← Generated after training
+├── mango_disease_model.h5  ← Download from Google Drive (link above)
 └── class_indices.json      ← Generated after training
 ```
 
@@ -38,14 +49,27 @@ mango-disease-detection/
 pip install -r requirements.txt
 ```
 
-### Step 2 — Download Dataset from Kaggle
-1. Go to: https://www.kaggle.com/datasets/aryashah2k/mango-leaf-disease-dataset
-2. Click **Download** (you need a free Kaggle account)
-3. Extract the zip file
-4. Rename the extracted folder to `dataset` and place it in this project folder
-5. Make sure the folder structure looks like the one above (each disease has its own subfolder)
+### Step 2 — Download Dataset
+**Option A: Use our pre-downloaded dataset (Recommended)**
+1. Download `dataset.zip` from the [Google Drive link](https://drive.google.com/file/d/1Ycuj4rVSwbzdeObMrqfEq2wy5foLXLu0/view?usp=sharing) above
+2. Extract and rename the folder to `dataset`
+3. Place it in the project root folder
 
-### Step 3 — Train the Model
+**Option B: Download from Kaggle directly**
+1. Go to: https://www.kaggle.com/datasets/aryashah2k/mango-leaf-disease-dataset
+2. Click **Download** (free Kaggle account required)
+3. Extract and rename to `dataset`, place in project root
+
+Make sure the folder structure matches the one shown above (each disease in its own subfolder).
+
+### Step 3 — Get the Trained Model
+
+**Option A: Use Pre-trained Model (Skip Training — Recommended)**
+1. Download `mango_disease_model.h5` from [Google Drive](https://drive.google.com/file/d/1LZ1TG34-oQ8b1dQMtcYJ9FKDfGy61mjz/view?usp=sharing)
+2. Place it in the project root folder (same location as `app.py`)
+3. Skip to **Step 4** directly!
+
+**Option B: Train from Scratch**
 ```bash
 python train_model.py
 ```
@@ -73,6 +97,8 @@ python app.py
 - **Optimizer:** Adam (lr=0.0001)
 - **Expected Accuracy:** ~92–97% on validation set
 
+---
+
 ## 🌿 Detectable Diseases (8 classes)
 | Disease | Severity |
 |---|---|
@@ -88,6 +114,18 @@ python app.py
 ---
 
 ## 🛠️ Troubleshooting
-- **CUDA/GPU error:** Run on CPU by adding `import os; os.environ["CUDA_VISIBLE_DEVICES"] = "-1"` at the top of train_model.py
-- **Memory error:** Reduce `BATCH_SIZE` from 32 to 16 in train_model.py
+- **CUDA/GPU error:** Run on CPU by adding `import os; os.environ["CUDA_VISIBLE_DEVICES"] = "-1"` at the top of `train_model.py`
+- **Memory error:** Reduce `BATCH_SIZE` from 32 to 16 in `train_model.py`
 - **Dataset not found:** Make sure the `dataset/` folder is in the same directory as `train_model.py`
+- **Model not found:** Make sure `mango_disease_model.h5` is downloaded and placed in the root project folder
+
+---
+
+## 👨‍💻 Author
+**Pavan Badiger**  
+[GitHub](https://github.com/MrPavanBadiger3)
+
+---
+
+## 📄 License
+This project is open source and available for educational purposes.

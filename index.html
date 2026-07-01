@@ -1,0 +1,491 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Mango Disease Detector</title>
+  <style>
+    /* ── Design tokens ── */
+    :root {
+      --green-dark:   #1a4731;
+      --green-mid:    #2d6a4f;
+      --green-light:  #52b788;
+      --mango-yellow: #f4a82a;
+      --mango-orange: #e07b20;
+      --cream:        #fdf8f0;
+      --text-dark:    #1a1a1a;
+      --text-mid:     #4a4a4a;
+      --card-bg:      #ffffff;
+      --shadow:       0 4px 24px rgba(0,0,0,0.10);
+      --radius:       16px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Segoe UI', system-ui, sans-serif;
+      background: var(--cream);
+      color: var(--text-dark);
+      min-height: 100vh;
+    }
+
+    /* ── Header ── */
+    header {
+      background: linear-gradient(135deg, var(--green-dark) 0%, var(--green-mid) 100%);
+      padding: 24px 32px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.2);
+    }
+    .logo { font-size: 2.4rem; }
+    .header-text h1 {
+      font-size: 1.6rem;
+      font-weight: 700;
+      color: var(--mango-yellow);
+      letter-spacing: -0.5px;
+    }
+    .header-text p {
+      color: rgba(255,255,255,0.75);
+      font-size: 0.9rem;
+      margin-top: 2px;
+    }
+
+    /* ── Main layout ── */
+    main {
+      max-width: 860px;
+      margin: 40px auto;
+      padding: 0 20px 60px;
+    }
+
+    /* ── Upload card ── */
+    .upload-card {
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 40px;
+      text-align: center;
+    }
+    .upload-card h2 {
+      font-size: 1.3rem;
+      color: var(--green-dark);
+      margin-bottom: 6px;
+    }
+    .upload-card .subtitle {
+      color: var(--text-mid);
+      font-size: 0.95rem;
+      margin-bottom: 28px;
+    }
+
+    /* Drop zone */
+    .drop-zone {
+      border: 2.5px dashed var(--green-light);
+      border-radius: 12px;
+      padding: 48px 24px;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f6fdf9;
+      position: relative;
+    }
+    .drop-zone:hover, .drop-zone.dragover {
+      border-color: var(--mango-orange);
+      background: #fff9f0;
+    }
+    .drop-zone input[type="file"] {
+      position: absolute; inset: 0; opacity: 0; cursor: pointer; width: 100%;
+    }
+    .drop-icon { font-size: 3rem; margin-bottom: 12px; display: block; }
+    .drop-zone p { color: var(--text-mid); font-size: 0.95rem; }
+    .drop-zone strong { color: var(--green-mid); }
+
+    /* Preview */
+    #preview-wrap { display: none; margin-top: 20px; }
+    #preview-img {
+      max-height: 240px;
+      border-radius: 10px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+      object-fit: cover;
+    }
+
+    /* Analyse button */
+    #analyse-btn {
+      display: none;
+      margin: 24px auto 0;
+      padding: 14px 44px;
+      font-size: 1.05rem;
+      font-weight: 700;
+      color: #fff;
+      background: linear-gradient(135deg, var(--mango-orange), var(--mango-yellow));
+      border: none;
+      border-radius: 50px;
+      cursor: pointer;
+      box-shadow: 0 4px 16px rgba(224,123,32,0.35);
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+    #analyse-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(224,123,32,0.45); }
+    #analyse-btn:active { transform: translateY(0); }
+    #analyse-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+    /* ── Loading ── */
+    #loading {
+      display: none;
+      margin-top: 24px;
+      text-align: center;
+      color: var(--green-mid);
+      font-weight: 600;
+    }
+    .spinner {
+      width: 38px; height: 38px;
+      border: 4px solid #e0f0e8;
+      border-top-color: var(--green-light);
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 10px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ── Results card ── */
+    #results-card {
+      display: none;
+      background: var(--card-bg);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 36px;
+      margin-top: 28px;
+    }
+    #results-card h3 {
+      font-size: 1.15rem;
+      color: var(--green-dark);
+      margin-bottom: 20px;
+      border-bottom: 2px solid #eaf5ef;
+      padding-bottom: 10px;
+    }
+
+    /* Primary result */
+    .primary-result {
+      display: flex;
+      align-items: flex-start;
+      gap: 20px;
+      background: linear-gradient(135deg, #eaf5ef, #f6fdf9);
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 20px;
+      border-left: 5px solid var(--green-light);
+    }
+    .disease-emoji { font-size: 2.8rem; flex-shrink: 0; }
+    .disease-name {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: var(--green-dark);
+    }
+    .confidence-badge {
+      display: inline-block;
+      background: var(--mango-yellow);
+      color: var(--green-dark);
+      font-weight: 700;
+      font-size: 0.85rem;
+      border-radius: 50px;
+      padding: 2px 12px;
+      margin-left: 8px;
+      vertical-align: middle;
+    }
+    .severity {
+      font-size: 0.88rem;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+    .severity.high   { color: #c0392b; }
+    .severity.medium { color: #e67e22; }
+    .severity.low    { color: #27ae60; }
+    .severity.none   { color: #27ae60; }
+    .disease-desc {
+      color: var(--text-mid);
+      font-size: 0.95rem;
+      margin-top: 8px;
+      line-height: 1.5;
+    }
+
+    /* Remedy box */
+    .remedy-box {
+      background: #fff8e1;
+      border-radius: 10px;
+      padding: 16px;
+      margin-top: 16px;
+      border-left: 4px solid var(--mango-yellow);
+    }
+    .remedy-box h4 { font-size: 0.9rem; color: var(--mango-orange); margin-bottom: 6px; }
+    .remedy-box p  { font-size: 0.93rem; color: var(--text-dark); line-height: 1.5; }
+
+    /* Other predictions */
+    .other-preds h4 {
+      font-size: 0.9rem;
+      color: var(--text-mid);
+      margin-bottom: 12px;
+      font-weight: 600;
+    }
+    .pred-bar-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .pred-label { font-size: 0.88rem; min-width: 140px; color: var(--text-dark); }
+    .bar-track {
+      flex: 1;
+      height: 8px;
+      background: #e8f5ee;
+      border-radius: 50px;
+      overflow: hidden;
+    }
+    .bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--green-light), var(--green-mid));
+      border-radius: 50px;
+      transition: width 0.6s ease;
+    }
+    .pred-pct { font-size: 0.82rem; color: var(--text-mid); min-width: 44px; text-align: right; }
+
+    /* Try again btn */
+    #try-again {
+      margin-top: 24px;
+      padding: 10px 28px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: var(--green-dark);
+      background: #eaf5ef;
+      border: 2px solid var(--green-light);
+      border-radius: 50px;
+      cursor: pointer;
+      transition: background 0.15s;
+    }
+    #try-again:hover { background: #d0ece0; }
+
+    /* ── Disease guide ── */
+    .guide-section { margin-top: 40px; }
+    .guide-section h3 {
+      font-size: 1.1rem;
+      color: var(--green-dark);
+      margin-bottom: 16px;
+      font-weight: 700;
+    }
+    .disease-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+    .disease-pill {
+      background: var(--card-bg);
+      border-radius: 10px;
+      padding: 14px 16px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      color: var(--green-dark);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      padding: 20px;
+      font-size: 0.82rem;
+      color: var(--text-mid);
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="logo">🥭</div>
+  <div class="header-text">
+    <h1>Mango Disease Detector</h1>
+    <p>KLE Technological University · AI-powered crop protection for farmers</p>
+  </div>
+</header>
+
+<main>
+
+  <!-- Upload card -->
+  <div class="upload-card">
+    <h2>Upload a Mango Leaf Image</h2>
+    <p class="subtitle">Take a clear photo of the leaf and upload it — our AI will detect any disease in seconds.</p>
+
+    <div class="drop-zone" id="drop-zone">
+      <input type="file" id="file-input" accept="image/*" />
+      <span class="drop-icon">📷</span>
+      <p><strong>Click to choose</strong> or drag & drop an image here</p>
+      <p style="margin-top:6px; font-size:0.82rem;">Supports JPG, PNG · Max 16 MB</p>
+    </div>
+
+    <div id="preview-wrap">
+      <img id="preview-img" src="" alt="Preview" />
+    </div>
+
+    <button id="analyse-btn">🔍 Detect Disease</button>
+
+    <div id="loading">
+      <div class="spinner"></div>
+      Analysing your leaf image…
+    </div>
+  </div>
+
+  <!-- Results -->
+  <div id="results-card">
+    <h3>🧪 Detection Results</h3>
+
+    <div class="primary-result" id="primary-result">
+      <div class="disease-emoji" id="res-emoji">✅</div>
+      <div>
+        <div>
+          <span class="disease-name" id="res-name">—</span>
+          <span class="confidence-badge" id="res-conf">—</span>
+        </div>
+        <div class="severity" id="res-severity"></div>
+        <p class="disease-desc" id="res-desc"></p>
+        <div class="remedy-box">
+          <h4>💊 Recommended Action</h4>
+          <p id="res-remedy"></p>
+        </div>
+      </div>
+    </div>
+
+    <div class="other-preds" id="other-preds">
+      <h4>Other possibilities</h4>
+      <div id="pred-bars"></div>
+    </div>
+
+    <button id="try-again">↩ Analyse another Mango fruit</button>
+  </div>
+
+  <!-- Disease reference -->
+  <div class="guide-section">
+    <h3>Detectable Diseases</h3>
+    <div class="disease-grid">
+      <div class="disease-pill">🍂 Anthracnose</div>
+      <div class="disease-pill">🦠 Bacterial Canker</div>
+      <div class="disease-pill">🐛 Cutting Weevil</div>
+      <div class="disease-pill">🌿 Die Back</div>
+      <div class="disease-pill">🪲 Gall Midge</div>
+      <div class="disease-pill">✅ Healthy</div>
+      <div class="disease-pill">🌫️ Powdery Mildew</div>
+      <div class="disease-pill">⬛ Sooty Mould</div>
+    </div>
+  </div>
+
+</main>
+
+<footer>
+  Developed by Pavan Badiger · Guide: Dr. Prema Akkasaligar · KLE Technological University, Belagavi
+</footer>
+
+<script>
+  const dropZone   = document.getElementById("drop-zone");
+  const fileInput  = document.getElementById("file-input");
+  const previewWrap = document.getElementById("preview-wrap");
+  const previewImg  = document.getElementById("preview-img");
+  const analyseBtn  = document.getElementById("analyse-btn");
+  const loading     = document.getElementById("loading");
+  const resultsCard = document.getElementById("results-card");
+  const tryAgain    = document.getElementById("try-again");
+
+  let selectedFile = null;
+
+  // Drag & drop styling
+  dropZone.addEventListener("dragover", e => { e.preventDefault(); dropZone.classList.add("dragover"); });
+  dropZone.addEventListener("dragleave", () => dropZone.classList.remove("dragover"));
+  dropZone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropZone.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) handleFile(e.dataTransfer.files[0]);
+  });
+
+  fileInput.addEventListener("change", () => {
+    if (fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  function handleFile(file) {
+    selectedFile = file;
+    const reader = new FileReader();
+    reader.onload = e => {
+      previewImg.src = e.target.result;
+      previewWrap.style.display = "block";
+      analyseBtn.style.display  = "block";
+      resultsCard.style.display = "none";
+    };
+    reader.readAsDataURL(file);
+  }
+
+  analyseBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+
+    analyseBtn.disabled     = true;
+    loading.style.display   = "block";
+    resultsCard.style.display = "none";
+
+    const formData = new FormData();
+    formData.append("file", selectedFile);
+
+    try {
+      const res  = await fetch("/predict", { method: "POST", body: formData });
+      const data = await res.json();
+
+      if (data.error) {
+        alert("Error: " + data.error);
+      } else {
+        showResults(data.predictions);
+      }
+    } catch (err) {
+      alert("Something went wrong. Make sure the Flask server is running.");
+    } finally {
+      analyseBtn.disabled   = false;
+      loading.style.display = "none";
+    }
+  });
+
+  function showResults(predictions) {
+    const top    = predictions[0];
+    const others = predictions.slice(1);
+
+    document.getElementById("res-emoji").textContent = top.info.emoji  || "🥭";
+    document.getElementById("res-name").textContent  = top.disease;
+    document.getElementById("res-conf").textContent  = top.confidence + "% confident";
+    document.getElementById("res-desc").textContent  = top.info.description || "";
+    document.getElementById("res-remedy").textContent = top.info.remedy || "";
+
+    const sev = (top.info.severity || "").toLowerCase();
+    const sevEl = document.getElementById("res-severity");
+    sevEl.textContent = "Severity: " + (top.info.severity || "—");
+    sevEl.className = "severity " + sev;
+
+    // Other predictions bar chart
+    const barsDiv = document.getElementById("pred-bars");
+    barsDiv.innerHTML = "";
+    others.forEach(p => {
+      barsDiv.innerHTML += `
+        <div class="pred-bar-row">
+          <span class="pred-label">${p.info.emoji || "🥭"} ${p.disease}</span>
+          <div class="bar-track">
+            <div class="bar-fill" style="width: ${p.confidence}%"></div>
+          </div>
+          <span class="pred-pct">${p.confidence}%</span>
+        </div>`;
+    });
+
+    resultsCard.style.display = "block";
+    resultsCard.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  }
+
+  tryAgain.addEventListener("click", () => {
+    selectedFile = null;
+    fileInput.value = "";
+    previewWrap.style.display  = "none";
+    analyseBtn.style.display   = "none";
+    resultsCard.style.display  = "none";
+    previewImg.src = "";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  });
+</script>
+</body>
+</html>

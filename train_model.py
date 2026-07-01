@@ -3,7 +3,6 @@ Mango Disease Detection - Model Training Script
 Dataset: MangoLeafBD from Kaggle (aryashah2k/mango-leaf-disease-dataset)
 Model: VGG19 Transfer Learning + Fine-tuning
 Authors: Pavan Nana Badiger
-Guide: Dr. Prema Akkasaligar
 KLE Technological University, Belagavi
 """
 

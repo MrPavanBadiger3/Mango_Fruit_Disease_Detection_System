@@ -1,4 +1,4 @@
-# 🥭 Mango Disease Detection System
+# 🥭 Mango Fruit Disease Detection System
 **KLE Technological University, Belagavi**  
  
 **Developed By:** Pavan Badiger
@@ -12,7 +12,7 @@
 | File | Size | Download |
 |---|---|---|
 | `mango_disease_model.h5` (Pre-trained Model) | ~171 MB | [Download from Google Drive](https://drive.google.com/file/d/1LZ1TG34-oQ8b1dQMtcYJ9FKDfGy61mjz/view?usp=sharing) |
-| `dataset.zip` (Mango Leaf Disease Dataset) | Large | [Download from Google Drive](https://drive.google.com/file/d/1Ycuj4rVSwbzdeObMrqfEq2wy5foLXLu0/view?usp=sharing) |
+| `dataset.zip` (Mango Fruit Disease Dataset) | Large | [Download from Google Drive](https://drive.google.com/file/d/1Ycuj4rVSwbzdeObMrqfEq2wy5foLXLu0/view?usp=sharing) |
 
 ---
 
@@ -56,7 +56,7 @@ pip install -r requirements.txt
 3. Place it in the project root folder
 
 **Option B: Download from Kaggle directly**
-1. Go to: https://www.kaggle.com/datasets/aryashah2k/mango-leaf-disease-dataset
+1. Go to: https://www.kaggle.com/datasets/warcoder/mangofruitdds
 2. Click **Download** (free Kaggle account required)
 3. Extract and rename to `dataset`, place in project root
 
@@ -85,7 +85,7 @@ python train_model.py
 python app.py
 ```
 - Open your browser and go to: **http://localhost:5000**
-- Upload any mango leaf image
+- Upload any mango fruit image
 - The AI will detect the disease instantly!
 
 ---
@@ -124,6 +124,7 @@ python app.py
 ## 👨‍💻 Author
 **Pavan Badiger**  
 [GitHub](https://github.com/MrPavanBadiger3)
+[LinkedIn] (linkedin.com/in/pavan-badiger-2b749928a)
 
 ---
 
